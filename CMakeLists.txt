@@ -22,6 +22,10 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_compile_options(-fdiagnostics-color=always)
 endif()
 
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
+enable_testing()
+
 add_subdirectory(lib)
 add_subdirectory(components)
 add_subdirectory(tests)
