@@ -103,8 +103,8 @@
     concept CONCEPTNAME =              \
         requires
 
-#define _WRAP_DECLVAL(TYPE) std::declval<TYPE>
+#define _WRAP_DECLVAL(TYPE) std::declval<TYPE>()
 #define CONCEPT_METHOD(NAME, RETURN, ...)                               \
     {                                                                   \
-        std::declval<T>.NAME(FOR_EACH_LIST(_WRAP_DECLVAL, __VA_ARGS__)) \
+        std::declval<T>().NAME(FOR_EACH_LIST(_WRAP_DECLVAL, __VA_ARGS__)) \
     } noexcept -> std::same_as<RETURN>
