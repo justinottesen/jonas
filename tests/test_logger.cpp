@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include <common/logger.hpp>
+#include <thread>
 
 #include "common/macros.hpp"
 
@@ -68,7 +69,7 @@ TEST_F(TestLogger, LogMessageHasCorrectAttributes) {
 
     EXPECT_CALL(mockHandler, handle(::testing::Truly([](const LogMessage& msg) {
                     // Check level
-                    if (msg.level != LogLevel::WARNING) return false;
+                    if (msg.level != LogLevel::WARN) return false;
 
                     // Check message text
                     const std::string logText = msg.msg;
@@ -88,7 +89,7 @@ TEST_F(TestLogger, LogMessageHasCorrectAttributes) {
     LogManager::instance().addHandler(
         [&mockHandler](const LogMessage& msg) { mockHandler.handle(msg); });
 
-    LOG(WARNING) << "Expected message";
+    LOG(WARN) << "Expected message";
 }
 
 TEST_F(TestLogger, MultipleHandlersAllReceiveMessage) {

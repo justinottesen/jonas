@@ -5,6 +5,7 @@
 #include <functional>
 #include <mutex>
 #include <sstream>
+#include <thread>
 
 #include "common/result.hpp"
 #include "macros.hpp"
@@ -16,7 +17,7 @@
     else           \
         Logger(LogLevel::LEVEL, __FILE__, __LINE__, __func__)
 
-ENUM(LogLevel, uint8_t, DEBUG, INFO, WARNING, ERROR, FATAL);
+ENUM(LogLevel, uint8_t, FINE, DEBUG, INFO, WARN, ERROR, FATAL);
 
 struct LogMessage {
     LogLevel                              level;
@@ -25,6 +26,7 @@ struct LogMessage {
     int                                   line;
     std::string_view                      func;
     std::chrono::system_clock::time_point timestamp;
+    std::thread::id                       thread;
 };
 
 // TODO: Refactor to use a thread pool for dispatching handler work
@@ -59,7 +61,8 @@ public:
                 .file      = file,
                 .line      = line,
                 .func      = func,
-                .timestamp = std::chrono::system_clock::now()} {}
+                .timestamp = std::chrono::system_clock::now(),
+                .thread    = std::this_thread::get_id()} {}
 
     ~Logger() {
         m_msg.msg = m_stream.str();
