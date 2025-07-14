@@ -28,14 +28,16 @@
     if (_str == #NAME) { return NAME; }
 #define ENUM(TYPE, BASE, ...)                                                                   \
     enum class TYPE : BASE { __VA_ARGS__ };                                                     \
-    [[nodiscard]] constexpr auto to_string(TYPE _enum) noexcept -> Result<std::string_view> {   \
+    [[nodiscard]] constexpr inline auto to_string(TYPE _enum) noexcept                          \
+        -> Result<std::string_view> {                                                           \
         using enum TYPE;                                                                        \
         switch (_enum) {                                                                        \
             FOR_EACH(_ENUM_CASE, __VA_ARGS__)                                                   \
             default: return std::unexpected(std::make_error_code(std::errc::invalid_argument)); \
         }                                                                                       \
     }                                                                                           \
-    [[nodiscard]] constexpr auto from_string(std::string_view _str) noexcept -> Result<TYPE> {  \
+    [[nodiscard]] constexpr inline auto from_string(std::string_view _str) noexcept             \
+        -> Result<TYPE> {                                                                       \
         using enum TYPE;                                                                        \
         FOR_EACH(_ENUM_IF, __VA_ARGS__)                                                         \
         return std::unexpected(std::make_error_code(std::errc::invalid_argument));              \
