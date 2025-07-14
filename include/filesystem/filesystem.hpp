@@ -49,7 +49,7 @@ enum class SeekMode {
     END = SEEK_END,
 };
 
-CONCEPT_INTERFACE(FileDescriptorT){
+CONCEPT_INTERFACE(FileDescriptorT) {
 
     /*
         { fd.listxattr() } noexcept -> std::same_as<Result<std::vector<std::string>>>;

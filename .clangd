@@ -1,0 +1,10 @@
+CompileFlags:
+  CompilationDatabase: build
+
+Diagnostics:
+  ClangTidy:
+    Add: true
+    ConfigFile: ${workspaceFolder}/.clang-tidy
+
+Index:
+  Background: true
