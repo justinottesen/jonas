@@ -16,32 +16,50 @@
     MACRO(ARG_1) __VA_OPT__(_FOR_EACH_AGAIN PARENS(MACRO, __VA_ARGS__))
 #define _FOR_EACH_AGAIN()    _FOR_EACH_HELPER
 #define FOR_EACH(MACRO, ...) __VA_OPT__(EXPAND(_FOR_EACH_HELPER(MACRO, __VA_ARGS__)))
+
+#define _FOR_EACH_P_HELPER(MACRO, ARG_1, ...) \
+    MACRO ARG_1 __VA_OPT__(_FOR_EACH_P_AGAIN PARENS(MACRO, __VA_ARGS__))
+#define _FOR_EACH_P_AGAIN()    _FOR_EACH_P_HELPER
+#define FOR_EACH_P(MACRO, ...) __VA_OPT__(EXPAND(_FOR_EACH_P_HELPER(MACRO, __VA_ARGS__)))
+
 #define _FOR_EACH_LIST_HELPER(MACRO, ARG_1, ...) \
     MACRO(ARG_1) __VA_OPT__(, _FOR_EACH_LIST_AGAIN PARENS(MACRO, __VA_ARGS__))
 #define _FOR_EACH_LIST_AGAIN()    _FOR_EACH_LIST_HELPER
 #define FOR_EACH_LIST(MACRO, ...) __VA_OPT__(EXPAND(_FOR_EACH_LIST_HELPER(MACRO, __VA_ARGS__)))
 
+#define _FOR_EACH_LIST_P_HELPER(MACRO, ARG_1, ...) \
+    MACRO ARG_1 __VA_OPT__(, _FOR_EACH_LIST_P_AGAIN PARENS(MACRO, __VA_ARGS__))
+#define _FOR_EACH_LIST_P_AGAIN()    _FOR_EACH_LIST_P_HELPER
+#define FOR_EACH_LIST_P(MACRO, ...) __VA_OPT__(EXPAND(_FOR_EACH_LIST_P_HELPER(MACRO, __VA_ARGS__)))
+
 // Enum with `to_string` and `from_string` methods
-#define _ENUM_CASE(NAME) \
+#define _ENUM_CASE(NAME, ...) \
     case NAME: return #NAME;
-#define _ENUM_IF(NAME) \
+#define _ENUM_IF(NAME, ...) \
     if (_str == #NAME) { return NAME; }
-#define ENUM(TYPE, BASE, ...)                                                                   \
-    enum class TYPE : BASE { __VA_ARGS__ };                                                     \
+#define _ENUM_STRING_METHODS(TYPE, LOOPER, ...)                                                 \
     [[nodiscard]] constexpr inline auto to_string(TYPE _enum) noexcept                          \
         -> Result<std::string_view> {                                                           \
         using enum TYPE;                                                                        \
         switch (_enum) {                                                                        \
-            FOR_EACH(_ENUM_CASE, __VA_ARGS__)                                                   \
+            EXPAND(LOOPER(_ENUM_CASE, __VA_ARGS__))                                             \
             default: return std::unexpected(std::make_error_code(std::errc::invalid_argument)); \
         }                                                                                       \
     }                                                                                           \
     [[nodiscard]] constexpr inline auto from_string(std::string_view _str) noexcept             \
         -> Result<TYPE> {                                                                       \
         using enum TYPE;                                                                        \
-        FOR_EACH(_ENUM_IF, __VA_ARGS__)                                                         \
+        EXPAND(LOOPER(_ENUM_IF, __VA_ARGS__))                                                   \
         return std::unexpected(std::make_error_code(std::errc::invalid_argument));              \
     }
+#define ENUM(TYPE, BASE, ...)               \
+    enum class TYPE : BASE { __VA_ARGS__ }; \
+    _ENUM_STRING_METHODS(TYPE, FOR_EACH, __VA_ARGS__)
+
+#define _ENUM_ASSIGN(NAME, VAL) NAME = VAL
+#define VAL_ENUM(TYPE, BASE, ...)                                          \
+    enum class TYPE : BASE { FOR_EACH_LIST_P(_ENUM_ASSIGN, __VA_ARGS__) }; \
+    _ENUM_STRING_METHODS(TYPE, FOR_EACH_P, __VA_ARGS__)
 
 // Cconstructors, Assignment, Destrcutors
 #define CTOR(CLASSNAME, MODIFIER) CLASSNAME() noexcept = MODIFIER
