@@ -6,6 +6,7 @@
 #include <mutex>
 #include <sstream>
 
+#include "common/result.hpp"
 #include "macros.hpp"
 #include "singleton.hpp"
 
@@ -15,7 +16,7 @@
     else           \
         Logger(LogLevel::LEVEL, __FILE__, __LINE__, __func__)
 
-enum class LogLevel : uint8_t { DEBUG, INFO, WARNING, ERROR, FATAL };
+ENUM(LogLevel, uint8_t, DEBUG, INFO, WARNING, ERROR, FATAL);
 
 struct LogMessage {
     LogLevel                              level;
