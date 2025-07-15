@@ -1,10 +1,10 @@
-add_library(fs
-    filesystem_interface.cpp
+add_library(filesystem
+    filesystem.cpp
 )
 
-target_include_directories(fs PUBLIC
+target_include_directories(filesystem PUBLIC
     $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
-target_compile_features(fs PUBLIC cxx_std_23)
+target_compile_features(filesystem PUBLIC cxx_std_23)

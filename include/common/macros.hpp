@@ -1,7 +1,7 @@
 #pragma once
 
 // Silence an unused parameter warning
-#define UNUSED(X) (void)(X)
+#define UNUSED(X) (void)sizeof(X)
 
 // Rescan macro tokens up to 256 times
 #define _EXPAND4(...) __VA_OPT__(__VA_ARGS__)
@@ -33,6 +33,12 @@
 #define FOR_EACH_LIST_P(MACRO, ...) __VA_OPT__(EXPAND(_FOR_EACH_LIST_P_HELPER(MACRO, __VA_ARGS__)))
 
 // Enum with `to_string` and `from_string` methods
+#ifndef _ENUM_FROM_STRING_TEMPLATE
+    #define _ENUM_FROM_STRING_TEMPLATE
+    #include <common/result.hpp>
+template <typename EnumT>
+[[nodiscard]] constexpr auto from_string(std::string_view _str) noexcept -> Result<EnumT>;
+#endif
 #define _ENUM_CASE(NAME, ...) \
     case NAME: return #NAME;
 #define _ENUM_IF(NAME, ...) \
@@ -46,6 +52,7 @@
             default: return std::unexpected(std::make_error_code(std::errc::invalid_argument)); \
         }                                                                                       \
     }                                                                                           \
+    template <>                                                                                 \
     [[nodiscard]] constexpr inline auto from_string(std::string_view _str) noexcept             \
         -> Result<TYPE> {                                                                       \
         using enum TYPE;                                                                        \
