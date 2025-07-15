@@ -3,24 +3,28 @@
 #include <fuse3/fuse.h>
 
 #include <common/macros.hpp>
+#include <filesystem/filesystem.hpp>
 
-class FuseFS {
+namespace jonas::fusefs {
+
+template <fs::FileSystemT FS> class FuseFS {
 public:
     DEFAULT_CTOR_DTOR(FuseFS);
     DELETE_COPY_MOVE(FuseFS);
 
     auto main(int argc, char* argv[]) -> int;
 
-    static auto get() -> FuseFS&;
+    static auto get() -> FuseFS& { return *static_cast<FuseFS*>(fuse_get_context()->private_data); }
 
 private:
-
     template <auto Method>
     static auto callBridge(auto... args) -> int {
         return (get().*Method)(args...);
     }
 
     auto getattr(const char* path, struct stat* stat, struct fuse_file_info* fileInfo) -> int;
+
+    FS m_fs;
 
 #define FUSE_OP(OP) .OP = &callBridge<&FuseFS::OP>
     const struct fuse_operations m_fuseOps{
@@ -69,3 +73,18 @@ private:
     };
 #undef FUSE_OP
 };
+
+template <fs::FileSystemT FS> auto FuseFS<FS>::main(int argc, char* argv[]) -> int {
+    return fuse_main(argc, argv, &m_fuseOps, this);
+}
+
+template <fs::FileSystemT FS>
+auto FuseFS<FS>::getattr(const char* path, struct stat* stat, struct fuse_file_info* fileInfo)
+    -> int {
+    UNUSED(path);
+    UNUSED(stat);
+    UNUSED(fileInfo);
+    return 0;
+}
+
+}    // namespace jonas::fusefs

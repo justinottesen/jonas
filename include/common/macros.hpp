@@ -1,7 +1,7 @@
 #pragma once
 
 // Silence an unused parameter warning
-#define UNUSED(X) (void)sizeof(X)
+#define UNUSED(X) (void)(X)
 
 // Rescan macro tokens up to 256 times
 #define _EXPAND4(...) __VA_OPT__(__VA_ARGS__)
@@ -10,6 +10,7 @@
 #define _EXPAND1(...) __VA_OPT__(_EXPAND2(_EXPAND2(_EXPAND2(_EXPAND2(__VA_ARGS__)))))
 #define EXPAND(...)   __VA_OPT__(_EXPAND1(_EXPAND1(_EXPAND1(_EXPAND1(__VA_ARGS__)))))
 #define PARENS        ()
+#define ID(...)       __VA_ARGS__
 
 // For each macro and helpers
 #define _FOR_EACH_HELPER(MACRO, ARG_1, ...) \
@@ -105,13 +106,18 @@ template <typename EnumT>
     DELETE_COPY_MOVE(CLASSNAME)
 
 // Concept method macros
-#define CONCEPT_INTERFACE(CONCEPTNAME) \
-    template <typename T>              \
-    concept CONCEPTNAME =              \
+#define CONCEPT_INTERFACE(CONCEPTNAME, ...)                                       \
+    template <typename ConceptType __VA_OPT__(, ) FOR_EACH_LIST(ID, __VA_ARGS__)> \
+    concept CONCEPTNAME =                                                         \
         requires
 
 #define _WRAP_DECLVAL(TYPE) std::declval<TYPE>()
-#define CONCEPT_METHOD(NAME, RETURN, ...)                               \
-    {                                                                   \
-        std::declval<T>().NAME(FOR_EACH_LIST(_WRAP_DECLVAL, __VA_ARGS__)) \
+#define CONCEPT_METHOD(NAME, RETURN, ...)                                           \
+    {                                                                               \
+        std::declval<ConceptType>().NAME(FOR_EACH_LIST(_WRAP_DECLVAL, __VA_ARGS__)) \
+    } noexcept -> std::same_as<RETURN>
+
+#define CONCEPT_METHOD_CONST(NAME, RETURN, ...)                                           \
+    {                                                                                     \
+        std::declval<const ConceptType>().NAME(FOR_EACH_LIST(_WRAP_DECLVAL, __VA_ARGS__)) \
     } noexcept -> std::same_as<RETURN>
