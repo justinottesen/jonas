@@ -1,5 +1,6 @@
 add_executable(jonas-fusefs
     main.cpp
+    fusefs.cpp
 )
 
 target_link_libraries(jonas-fusefs PRIVATE filesystem)
