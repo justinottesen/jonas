@@ -14,6 +14,9 @@ CONCEPT_INTERFACE(FileHandleT) {
     CONCEPT_METHOD(close, Result<void>);
 };
 
-CONCEPT_INTERFACE(FileSystemT) { CONCEPT_METHOD(getattr, Result<Stat>, const std::string_view&); };
+CONCEPT_INTERFACE(FileSystemT) {
+    CONCEPT_METHOD(getattr, Result<Stat>, const std::string&);
+    CONCEPT_METHOD(joinPaths, std::string, std::string_view, std::string_view);
+};
 
 }    // namespace jonas::fs

@@ -3,7 +3,9 @@
 #include <fuse3/fuse.h>
 
 #include <common/macros.hpp>
+#include <common/logger.hpp>
 #include <filesystem/filesystem.hpp>
+#include <common/config.hpp>
 
 namespace jonas::fusefs {
 
@@ -81,9 +83,12 @@ template <fs::FileSystemT FS> auto FuseFS<FS>::main(int argc, char* argv[]) -> i
 template <fs::FileSystemT FS>
 auto FuseFS<FS>::getattr(const char* path, struct stat* stat, struct fuse_file_info* fileInfo)
     -> int {
-    UNUSED(path);
-    UNUSED(stat);
-    UNUSED(fileInfo);
+    LOG(FINE) << "Args: " << path << ", " << stat << ", " << fileInfo; 
+    std::string localRoot = Config::instance().localRoot();
+    auto statResult = m_fs.getattr(m_fs.joinPaths(localRoot, path));
+    if (!statResult) {
+        LOG(ERROR) << "";
+    }
     return 0;
 }
 

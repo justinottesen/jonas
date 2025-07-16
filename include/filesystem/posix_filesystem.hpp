@@ -16,7 +16,8 @@ static_assert(FileHandleT<FileHandle>);
 
 class PosixFS {
 public:
-    auto getattr(const std::string_view& path) noexcept -> Result<Stat>;
+    auto getattr(const std::string& path) noexcept -> Result<Stat>;
+    auto joinPaths(std::string_view begin, std::string_view end) noexcept -> std::string;
 
 private:
 };
